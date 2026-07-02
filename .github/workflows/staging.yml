@@ -63,11 +63,26 @@ jobs:
 
     steps:
       - name: Trigger Render Staging Deploy
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.RENDER_STAGING_DEPLOY_HOOK_URL }}
         run: |
           echo "🚀 Triggering Render staging deployment..."
+          
+          # Validasi: cek apakah secret sudah di-set
+          if [ -z "$DEPLOY_HOOK_URL" ]; then
+            echo "❌ ERROR: Secret RENDER_STAGING_DEPLOY_HOOK_URL belum di-set!"
+            echo ""
+            echo "Cara setup:"
+            echo "  1. Buka Render Dashboard → Staging Service → Settings → Deploy Hook"
+            echo "  2. Copy URL-nya"
+            echo "  3. GitHub Repo → Settings → Secrets → Actions → New secret"
+            echo "  4. Name: RENDER_STAGING_DEPLOY_HOOK_URL | Value: (paste URL)"
+            exit 1
+          fi
+          
           RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
             --request POST \
-            "${{ secrets.RENDER_STAGING_DEPLOY_HOOK_URL }}")
+            "$DEPLOY_HOOK_URL")
           
           if [ "$RESPONSE" -eq 200 ] || [ "$RESPONSE" -eq 201 ]; then
             echo "✅ Render staging deploy triggered successfully (HTTP $RESPONSE)"
