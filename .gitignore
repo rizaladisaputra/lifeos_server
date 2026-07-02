@@ -24,6 +24,9 @@ tmp/
 *.tar.gz
 *.rar
 
+# Exception: Gradle wrapper JAR wajib ada di Git agar CI/CD bisa jalan
+!gradle/wrapper/gradle-wrapper.jar
+
 # ==========================================
 # IDE & System Files
 # ==========================================
