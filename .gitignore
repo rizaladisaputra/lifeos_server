@@ -24,6 +24,9 @@ tmp/
 *.tar.gz
 *.rar
 
+# Exception: Gradle wrapper JAR wajib ada di Git agar CI/CD bisa jalan
+!gradle/wrapper/gradle-wrapper.jar
+
 # ==========================================
 # IDE & System Files
 # ==========================================
@@ -69,6 +72,7 @@ src/test/resources/serviceAccountKey.json
 .env.development.local
 .env.test.local
 .env.production.local
+# .env.example BOLEH di-commit (template, tidak berisi secret asli)
 
 # Spring local profile overrides (contain local credentials)
 application-local.yml

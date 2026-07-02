@@ -18,7 +18,9 @@ spring:
 
 app:
   jwt:
-    secret: 9a4f2c8d3e7b1a5c6d8e0f1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z7A8B9C0D1E2F3G4H5I6J7K8L9M0N1O2P3Q4R5S6T7U8V9W0X1Y2Z
+    # Secret khusus untuk test — BUKAN untuk production
+    secret: test-secret-for-unit-tests-only-do-not-use-in-production-abcdefgh-ijklmnop
     expiration-ms: 86400000
   firebase:
     config-path: classpath:serviceAccountKey.json
+
