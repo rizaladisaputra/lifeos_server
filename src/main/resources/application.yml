@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: lifeos_be
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/lifeos}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: 9a6Z9A9yX8jW7vU6tT5sS4rR3qQ2pP1oN0mL9kK8jJ7iI6hH5gG4fF3eE2dD1cC0bB
+    expiration-ms: 86400000 # 24 jam
+  firebase:
+    config-path: ${FIREBASE_CONFIG:classpath:serviceAccountKey.json}

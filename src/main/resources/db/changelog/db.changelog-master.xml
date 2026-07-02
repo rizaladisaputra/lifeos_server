@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+        Master Changelog File.
+        Semua migration file didaftarkan di sini secara berurutan.
+        Jangan pernah mengubah urutan changeset yang sudah ada — hanya tambahkan yang baru.
+    -->
+
+    <!-- Initial Schema -->
+    <include file="db/changelog/migrations/V001__create_users_table.xml"/>
+    <include file="db/changelog/migrations/V002__create_activities_table.xml"/>
+    <include file="db/changelog/migrations/V003__create_habits_tables.xml"/>
+    <include file="db/changelog/migrations/V004__create_prayers_table.xml"/>
+    <include file="db/changelog/migrations/V005__create_weekly_goals_table.xml"/>
+
+</databaseChangeLog>

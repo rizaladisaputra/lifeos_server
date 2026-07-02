@@ -1,0 +1,514 @@
+{
+  "info": {
+    "_postman_id": "lifeos-be-api-collection",
+    "name": "LifeOS Backend API",
+    "description": "Koleksi API untuk LifeOS Backend Server.\n\nArsitektur: Hexagonal (Ports & Adapters) / Pure DDD\nBase URL: http://localhost:8080\n\n## Quick Start\n1. Jalankan endpoint **Signup** atau **Login** terlebih dahulu.\n2. Token JWT akan otomatis tersimpan ke environment variable `jwt_token`.\n3. Semua endpoint selanjutnya akan menggunakan token tersebut secara otomatis.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Signup",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const res = pm.response.json();",
+                  "    pm.collectionVariables.set('jwt_token', res.token);",
+                  "    console.log('✅ Token saved:', res.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@lifeos.com\",\n  \"password\": \"password123\",\n  \"displayName\": \"Test User\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/signup",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "signup"]
+            },
+            "description": "Mendaftarkan akun baru. Token JWT otomatis tersimpan ke collection variable `jwt_token`."
+          },
+          "response": [
+            {
+              "name": "201 - Signup Success",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"token\": \"eyJhbGci...\",\n  \"userId\": \"uuid\",\n  \"email\": \"test@lifeos.com\",\n  \"displayName\": \"Test User\",\n  \"xp\": 0,\n  \"level\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const res = pm.response.json();",
+                  "    pm.collectionVariables.set('jwt_token', res.token);",
+                  "    console.log('✅ Token saved:', res.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@lifeos.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login dengan email dan password. Token JWT otomatis tersimpan."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👤 User / Profile",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "me"]
+            },
+            "description": "Mengambil data profil user yang sedang login (email, displayName, xp, level)."
+          },
+          "response": []
+        },
+        {
+          "name": "Register FCM Token",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"fcm-device-token-here\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/fcm-token",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "fcm-token"]
+            },
+            "description": "Mendaftarkan atau memperbarui FCM token untuk push notification."
+          },
+          "response": []
+        },
+        {
+          "name": "Gain XP",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 50\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/xp",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "xp"]
+            },
+            "description": "Menambahkan XP ke user. Jika XP cukup, level naik secara otomatis (domain logic)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📅 Planner (Activities)",
+      "item": [
+        {
+          "name": "Get Activities by Date",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/activities?date={{$today}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "activities"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2025-07-02",
+                  "description": "Format: YYYY-MM-DD"
+                }
+              ]
+            },
+            "description": "Mengambil semua aktivitas harian berdasarkan tanggal. Format: YYYY-MM-DD."
+          },
+          "response": [
+            {
+              "name": "200 - Success",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": \"uuid\",\n    \"time\": \"09:00\",\n    \"emoji\": \"📚\",\n    \"title\": \"Baca Buku\",\n    \"category\": \"LEARNING\",\n    \"isCompleted\": false,\n    \"date\": \"2025-07-02\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Create Activity",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"time\": \"09:00\",\n  \"emoji\": \"📚\",\n  \"title\": \"Baca Buku\",\n  \"category\": \"LEARNING\",\n  \"date\": \"2025-07-02\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/activities",
+              "host": ["{{base_url}}"],
+              "path": ["api", "activities"]
+            },
+            "description": "Membuat activity baru. Validasi: title dan time wajib diisi. Jika ada konflik waktu (< 15 menit dari activity lain), akan mengembalikan 409 Conflict."
+          },
+          "response": [
+            {
+              "name": "409 - Time Conflict",
+              "status": "Conflict",
+              "code": 409,
+              "body": "{\n  \"type\": \"https://lifeos.com/errors/business-rule-violation\",\n  \"title\": \"Business Rule Violation\",\n  \"status\": 409,\n  \"detail\": \"Time conflict detected. Activities must be at least 15 minutes apart.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Toggle Activity Completion",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/api/activities/:id/toggle",
+              "host": ["{{base_url}}"],
+              "path": ["api", "activities", ":id", "toggle"],
+              "variable": [{ "key": "id", "value": "paste-activity-uuid-here" }]
+            },
+            "description": "Toggle status selesai/belum selesai sebuah activity."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Activity",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/activities/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "activities", ":id"],
+              "variable": [{ "key": "id", "value": "paste-activity-uuid-here" }]
+            },
+            "description": "Menghapus sebuah activity. Hanya pemilik yang bisa menghapus (403 jika bukan pemilik)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "✅ Habit Tracker",
+      "item": [
+        {
+          "name": "Get All Habits",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/habits",
+              "host": ["{{base_url}}"],
+              "path": ["api", "habits"]
+            },
+            "description": "Mengambil semua habit milik user yang sedang login beserta log tanggal yang sudah diselesaikan."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Habit",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Baca Buku\",\n  \"emoji\": \"📚\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/habits",
+              "host": ["{{base_url}}"],
+              "path": ["api", "habits"]
+            },
+            "description": "Membuat habit baru."
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Habit Log (by date)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/api/habits/:id/toggle?date=2025-07-02",
+              "host": ["{{base_url}}"],
+              "path": ["api", "habits", ":id", "toggle"],
+              "query": [{ "key": "date", "value": "2025-07-02", "description": "Format: YYYY-MM-DD" }],
+              "variable": [{ "key": "id", "value": "paste-habit-uuid-here" }]
+            },
+            "description": "Toggle habit completion untuk tanggal tertentu. Jika sudah ada log → dihapus. Jika belum ada → dibuat."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Habit",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/habits/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "habits", ":id"],
+              "variable": [{ "key": "id", "value": "paste-habit-uuid-here" }]
+            },
+            "description": "Menghapus habit dan semua log-nya (cascade delete)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🕌 Prayer Tracker",
+      "item": [
+        {
+          "name": "Get Prayers by Date",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/prayers?date=2025-07-02",
+              "host": ["{{base_url}}"],
+              "path": ["api", "prayers"],
+              "query": [{ "key": "date", "value": "2025-07-02", "description": "Format: YYYY-MM-DD" }]
+            },
+            "description": "Mengambil daftar sholat harian. Jika belum ada untuk tanggal tersebut, akan otomatis dibuat 5 waktu sholat default (Subuh, Dzuhur, Ashar, Maghrib, Isya)."
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Prayer Completion",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/api/prayers/:id/toggle",
+              "host": ["{{base_url}}"],
+              "path": ["api", "prayers", ":id", "toggle"],
+              "variable": [{ "key": "id", "value": "paste-prayer-uuid-here" }]
+            },
+            "description": "Toggle status selesai/belum selesai untuk satu waktu sholat."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🎯 Weekly Goals",
+      "item": [
+        {
+          "name": "Get All Weekly Goals",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/weekly-goals",
+              "host": ["{{base_url}}"],
+              "path": ["api", "weekly-goals"]
+            },
+            "description": "Mengambil semua weekly goal milik user beserta progress saat ini."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Weekly Goal",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Baca Buku\",\n  \"emoji\": \"📚\",\n  \"target\": 5,\n  \"unit\": \"jam\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/weekly-goals",
+              "host": ["{{base_url}}"],
+              "path": ["api", "weekly-goals"]
+            },
+            "description": "Membuat weekly goal baru. Progress awal selalu dimulai dari 0."
+          },
+          "response": []
+        },
+        {
+          "name": "Increment Weekly Goal",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/api/weekly-goals/:id/increment?amount=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "weekly-goals", ":id", "increment"],
+              "query": [{ "key": "amount", "value": "1", "description": "Jumlah increment (default: 1)" }],
+              "variable": [{ "key": "id", "value": "paste-goal-uuid-here" }]
+            },
+            "description": "Menambah progress weekly goal. Nilai current tidak akan melebihi target (domain logic)."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Weekly Goal",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/weekly-goals/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "weekly-goals", ":id"],
+              "variable": [{ "key": "id", "value": "paste-goal-uuid-here" }]
+            },
+            "description": "Menghapus sebuah weekly goal."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global: log response time for all requests",
+          "console.log(`[${pm.info.requestName}] ${pm.response.code} — ${pm.response.responseTime}ms`);"
+        ]
+      }
+    }
+  ]
+}
