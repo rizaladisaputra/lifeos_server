@@ -1,0 +1,43 @@
+# Build outputs
+build/
+out/
+bin/
+.gradle/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.iws
+
+# Git
+.git/
+.gitattributes
+
+# Secrets (JANGAN masuk ke image!)
+.env
+.env.*
+src/main/resources/serviceAccountKey.json
+src/test/resources/serviceAccountKey.json
+src/main/resources/application-local.yml
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+
+# CI/CD
+.github/
+
+# Docs
+*.md
+README.md
+HELP.md
+*.postman_collection.json

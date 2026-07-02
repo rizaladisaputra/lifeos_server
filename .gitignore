@@ -69,6 +69,7 @@ src/test/resources/serviceAccountKey.json
 .env.development.local
 .env.test.local
 .env.production.local
+# .env.example BOLEH di-commit (template, tidak berisi secret asli)
 
 # Spring local profile overrides (contain local credentials)
 application-local.yml

@@ -19,11 +19,21 @@ spring:
     enabled: true
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
 
 app:
   jwt:
-    secret: 9a6Z9A9yX8jW7vU6tT5sS4rR3qQ2pP1oN0mL9kK8jJ7iI6hH5gG4fF3eE2dD1cC0bB
-    expiration-ms: 86400000 # 24 jam
+    # WAJIB di-set via environment variable. Tidak ada default untuk keamanan production.
+    secret: ${JWT_SECRET}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
   firebase:
-    config-path: ${FIREBASE_CONFIG:classpath:serviceAccountKey.json}
+    config-path: ${FIREBASE_CONFIG_PATH:classpath:serviceAccountKey.json}
