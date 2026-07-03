@@ -128,3 +128,43 @@ Run the test suite:
 | **PUT** | `/api/prayers/{id}/toggle` | Toggle prayer completion | Yes (Bearer) |
 | **GET** | `/api/weekly-goals` | Get weekly goal cards | Yes (Bearer) |
 | **PUT** | `/api/weekly-goals/{id}/increment` | Increment goal progress | Yes (Bearer) |
+
+---
+
+## 🐳 Docker & CI/CD Deployment (Render)
+
+Project ini telah dikonfigurasi untuk deployment berbasis container (Docker) secara otomatis menggunakan GitHub Actions CI/CD ke **Render**.
+
+### 1. Dockerization
+Aplikasi menggunakan multi-stage **Dockerfile** untuk keamanan dan efisiensi:
+- **Build Stage**: Melakukan compile dan packaging JAR menggunakan Gradle dengan JDK 21.
+- **Runtime Stage**: Menggunakan image minimal JRE 21 Alpine yang berjalan dengan non-root user (`appuser`).
+- **Health Check**: Menggunakan endpoint Spring Actuator (`/actuator/health`).
+
+Jalankan server & DB secara lokal menggunakan Docker Compose:
+```bash
+# 1. Salin template environment variables
+cp .env.example .env
+# Edit file .env dengan kredensial database & JWT_SECRET lokal Anda
+
+# 2. Jalankan stack (PostgreSQL + Spring Boot App)
+docker compose up --build
+```
+
+### 2. Environment Variables Configuration
+Seluruh data sensitif telah dipindahkan ke variabel lingkungan. Pastikan variabel berikut ter-set di file `.env` lokal atau di dashboard **Render (Environment Variables)**:
+- `DATABASE_URL`: JDBC database URL (Contoh: `jdbc:postgresql://<host>:5432/<db>?sslmode=require`)
+- `DATABASE_USERNAME`: Username database
+- `DATABASE_PASSWORD`: Password database
+- `JWT_SECRET`: JWT Sign Key minimal 256-bit (Generate via `openssl rand -hex 64`)
+- `JWT_EXPIRATION_MS`: Masa berlaku JWT token (default: `86400000` / 24 jam)
+- `FIREBASE_CONFIG_PATH`: Path konfigurasi FCM (default: `classpath:serviceAccountKey.json`)
+- `SERVER_PORT`: Port server (default: `8080`)
+- `SPRING_PROFILES_ACTIVE`: Profil Spring aktif (default: `production`)
+
+### 3. GitHub Actions Workflows (CI/CD)
+Terdapat 3 pipeline otomatisasi di `.github/workflows/`:
+1. **CI — Run Tests (`ci.yml`)**: Berjalan otomatis di semua feature branch & Pull Request. Menjalankan `./gradlew test`.
+2. **Staging Deploy (`staging.yml`)**: Berjalan otomatis ketika push/merge ke branch `develop`. Menjalankan unit test lalu memicu webhook **Render Staging**.
+3. **Production Deploy (`production.yml`)**: Berjalan otomatis ketika push/merge ke branch `main`. Menjalankan unit test lalu memicu webhook **Render Production**.
+
